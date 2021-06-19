@@ -18,21 +18,40 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         this.dataObjects = dataObjects;
     }
 
+    /**
+     * Gets the attributes of the dataset.
+     * @return the list of attributes
+     */
     @Override
     public List<String> getAttributes() {
         return this.attributes;
     }
 
+    /**
+     * Gets the data of the dataset.
+     * @return the list of data objects
+     */
     @Override
     public List<T> getDataObjects() {
         return this.dataObjects;
     }
 
+    /**
+     * Gets the size of the dataset.
+     * @return the number of data/rows in the dataset
+     */
     @Override
     public int size() {
         return this.dataObjects.size();
     }
 
+    /**
+     * Determines whether every datum in the dataset has the same value of a
+     * given attribute.
+     * @param ofAttribute the given attribute
+     * @return true if all data in the dataset have the same value for
+     * ofAttribute,false otherwise
+     */
     @Override
     public boolean allSameValue(String ofAttribute) {
         if (this.dataObjects.isEmpty()){
@@ -47,6 +66,13 @@ public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T
         return true;
     }
 
+    /**
+     * Gets the shared value of a given attribute, assuming all data in the
+     * dataset have the same value
+     * of that attribute.
+     * @param ofAttribute the given attribute
+     * @return the common value for the given attribute
+     */
     @Override
     public Object getSharedValue(String ofAttribute) {
         if (this.dataObjects.isEmpty()) {
