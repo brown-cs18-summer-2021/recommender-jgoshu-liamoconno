@@ -5,7 +5,13 @@ import src.IAttributeDatum;
 import src.ITreeGenerator;
 import src.ITreeNode;
 
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Random;
+
 public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator {
+    ITreeNode rootNode;
+    IAttributeDataset<T> trainingData;
 
     /**
      * Constructor for a tree generator.
@@ -13,19 +19,23 @@ public class TreeGenerator<T extends IAttributeDatum> implements ITreeGenerator 
      *                     decision tree
      */
     public TreeGenerator(IAttributeDataset<T> trainingData) {
-        // TODO: implement
+          this.trainingData = trainingData;
     }
 
     @Override
     public ITreeNode buildClassifier(String targetAttribute) {
-        // TODO: implement
-        return null;
+        LinkedList<String> unusedAttributes = new LinkedList<>(this.trainingData.getAttributes());
+        unusedAttributes.remove(targetAttribute);
+        ITreeNode newNode = this.buildClassifierHelp(targetAttribute, unusedAttributes);
+        this.rootNode = newNode;
+        //update root node here
+        return newNode;
+        
     }
 
     @Override
     public Object lookupRecommendation(IAttributeDatum datum) {
-        // TODO: implement
-        return null;
+      return rootNode.lookupDecision(datum);
     }
 
     @Override

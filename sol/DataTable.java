@@ -2,60 +2,118 @@ package sol;
 
 import src.IAttributeDataset;
 import src.IAttributeDatum;
-
 import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Class for a table (collection of rows) of data.
  * @param <T> the type of the data objects
  */
 public class DataTable<T extends IAttributeDatum> implements IAttributeDataset<T> {
-
-    // TODO: add fields
+    public List<String> attributes;
+    public List<T> dataObjects;
 
     public DataTable(List<String> attributes, List<T> dataObjects) {
-        // TODO: implement
+        this.attributes = attributes;
+        this.dataObjects = dataObjects;
     }
 
     @Override
     public List<String> getAttributes() {
-        // TODO: implement
-        return null;
+        return this.attributes;
     }
 
     @Override
     public List<T> getDataObjects() {
-        // TODO: implement
-        return null;
+        return this.dataObjects;
     }
 
     @Override
     public int size() {
-        // TODO: implement
-        return 0;
+        return this.dataObjects.size();
     }
 
     @Override
     public boolean allSameValue(String ofAttribute) {
-        // TODO: implement
-        return false;
+        if (this.dataObjects.isEmpty()){
+            throw new RuntimeException("The Dataset is empty.");
+        }
+        Object value = this.dataObjects.get(0).getValueOf(ofAttribute);
+        for(T item : this.dataObjects){
+            if(!item.getValueOf(ofAttribute).equals(value)){
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
     public Object getSharedValue(String ofAttribute) {
-        // TODO: implement
-        return null;
+        if (this.dataObjects.isEmpty()) {
+            throw new RuntimeException("The Dataset is empty.");
+        } else {
+            return this.dataObjects.get(0).getValueOf(ofAttribute);
+        }
     }
 
+    /**
+     * Gets the most common value of a given attribute across the dataset.
+     * @param ofAttribute the given attribute
+     * @return the most common value for an attribute across every datum
+     * in the dataset
+     */
     @Override
     public Object mostCommonValue(String ofAttribute) {
-        // TODO: implement
-        return null;
+        //find a more efficient way?
+        //ask about if multiple same occurrence
+        if(!this.dataObjects.isEmpty()){
+            int maxLength = 0;
+            Object currentMCV = null;
+            List<IAttributeDataset<T>> partitioned = this.partition(ofAttribute);
+            for(IAttributeDataset<T> dataset : partitioned){
+                if(dataset.size() > maxLength){
+                    maxLength = dataset.size();
+                    currentMCV = dataset.getSharedValue(ofAttribute);
+                }
+            }
+            return currentMCV;
+        } else {
+            throw new RuntimeException("mostCommonValue error: DataObjects is empty");
+        }
     }
 
+    /**
+     * Partitions the dataset into subsets such that each subset contains
+     * only data/rows with the same values
+     * of the given attribute.
+     * @param onAttribute the attribute on which to split the dataset
+     * @return new datasets, where each dataset contains only data with the
+     * same value of onAttribute
+     */
     @Override
     public List<IAttributeDataset<T>> partition(String onAttribute) {
-        // TODO: implement
-        return null;
+        if (!this.dataObjects.isEmpty()) {
+            //go through, put in dataset if match any getSharedValue, if not create new dataset
+            List<IAttributeDataset<T>> partitionedDatasets = new LinkedList<>(); //return List
+            for (T item : this.dataObjects) {
+                boolean foundMatch = false;
+                for (IAttributeDataset<T> dataset : partitionedDatasets) {
+                    if (item.getValueOf(onAttribute).equals(dataset.getSharedValue(onAttribute))) {
+                        dataset.getDataObjects().add(item);
+                        foundMatch = true;
+                    }
+                }
+                if (!foundMatch) {
+                    IAttributeDataset<T> newDataSet = new DataTable<T>(this.attributes, new LinkedList<T>());
+                    newDataSet.getDataObjects().add(item); //use methods not field
+                    partitionedDatasets.add(newDataSet);
+                }
+            }
+            return partitionedDatasets;
+        } else {
+            throw new RuntimeException("partition error: DataObjects is empty");
+        }
     }
+
 }
+
